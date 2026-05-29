@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Assistant</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="chat-container">
+<div class="chat-header">
+    🤖 AI Assistant
+</div>
+<div id="chat-box" class="chat-box">
+    <div class="message bot">
+        Nội dung này do AI hỗ trợ sáng tạo. 
+        Vui lòng tham khảo có chọn lọc.
+    </div>
+</div>
+<div class="input-area">
+    <input
+        type="text"
+        id="message"
+        placeholder="Nhập tin nhắn..."
+        autocomplete="off"
+    >
+    <button onclick="sendMessage()">Gửi</button>
+</div>
+</div>
+<script>
+async function sendMessage() {
+    const input = document.getElementById("message")
+    const message = input.value.trim()
+    if (!message) return
+    appendMessage("user", message)
+    input.value = ""
+    appendThinking()
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+    })
+    const data = await response.json()
+    removeThinking()
+    appendMessage("bot", data.reply)
+}
+function appendMessage(sender, text){
+    const chatBox = document.getElementById("chat-box")
+    const div = document.createElement("div")
+    div.className = "message " + sender
+    div.innerText = text
+    chatBox.appendChild(div)
+    chatBox.scrollTop = chatBox.scrollHeight
+}
+function appendThinking(){
+    const chatBox = document.getElementById("chat-box")
+    const div = document.createElement("div")
+    div.className = "message bot thinking"
+    div.innerText = "AI đang suy nghĩ..."
+    chatBox.appendChild(div)
+    chatBox.scrollTop = chatBox.scrollHeight
+}
+function removeThinking(){
+    document.querySelectorAll(".thinking").forEach(e => e.remove())
+}
+document.getElementById("message").addEventListener("keypress", function(e){
+    if(e.key === "Enter") sendMessage()
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+.env  
+cau_hinh.py  
+__pycache__/  
+*.mp3 
